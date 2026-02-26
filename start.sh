@@ -1,11 +1,15 @@
 #!/bin/bash
 
+# Build frontend
+cd frontend
+npm install
+npm run build
+
 # Start backend
-cd backend
+cd ../backend
 npm install
 npm run start &
 
-# Start frontend
+# Serve built frontend (Vite preview)
 cd ../frontend
-npm install
-npm run dev
+npm run preview -- --host 0.0.0.0 --port 5000
