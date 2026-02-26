@@ -60,24 +60,38 @@ export default function ScanPage({ user }) {
   }, [scan, polling]);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
-      <h2>Security Scan</h2>
-      <UsageMeter />
-      <form onSubmit={startScan} style={{ marginTop: '16px' }}>
+    <div>
+      <h2 style={{ marginBottom: 24 }}>New Scan</h2>
+      <div style={{ marginBottom: 24 }}>
+        <UsageMeter />
+      </div>
+      <form onSubmit={startScan} style={{
+        background: '#f4f6fa',
+        borderRadius: 10,
+        boxShadow: '0 2px 8px #e3e8f0',
+        padding: 24,
+        marginBottom: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        maxWidth: 480
+      }}>
+        <label htmlFor="scan-url" style={{ fontWeight: 500, marginBottom: 4 }}>Website URL</label>
         <input
+          id="scan-url"
           type="url"
           placeholder="https://example.com"
           value={url}
           onChange={e => setUrl(e.target.value)}
           required
-          style={{ padding: '8px', width: '400px', marginRight: '8px' }}
+          style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
         />
-        <button type="submit" disabled={loading} style={{ padding: '8px 16px' }}>
+        <button type="submit" disabled={loading} style={{ alignSelf: 'flex-start', marginTop: 8, padding: '8px 16px' }}>
           {loading ? 'Scanning...' : 'Start Scan'}
         </button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {loading && <p>Analyzing {url}... This may take a moment.</p>}
+      {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
+      {loading && <div style={{ color: '#2a7be4', fontWeight: 500, marginBottom: 12 }}>Analyzing {url}... This may take a moment.</div>}
       {result && result.status === 'completed' && <ResultsPage scanId={result.id} />}
       {result && result.status === 'failed' && (
         <div style={{ marginTop: '16px', padding: '12px', background: '#fff0f0', border: '1px solid #fcc', borderRadius: '4px' }}>

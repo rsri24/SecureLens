@@ -11,23 +11,25 @@ export default function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            user ? <Navigate to="/scan" /> : <AuthForm onSuccess={handleLogin} />
-          }
-        />
-        <Route
-          path="/scan"
-          element={user ? <ScanPage user={user} /> : <Navigate to="/" />}
-        />
-        <Route
-          path="/results/:id"
-          element={<ResultsWrapper />}
-        />
-        <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
+      <div className="app-container">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              user ? <Navigate to="/scan" /> : <AuthForm onSuccess={handleLogin} />
+            }
+          />
+          <Route
+            path="/scan"
+            element={user ? <ScanPage user={user} /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/results/:id"
+            element={<ResultsWrapper />}
+          />
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

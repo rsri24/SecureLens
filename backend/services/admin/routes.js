@@ -1,6 +1,7 @@
 const express = require('express');
 const { requireAdmin } = require('../../middleware/admin');
 const analytics = require('../analytics/analytics.service');
+const { getRecentErrors } = require('./errorLogs');
 
 const router = express.Router();
 
@@ -19,6 +20,10 @@ router.get('/stats', requireAdmin, async (req, res) => {
     console.error('admin stats error', err);
     res.status(500).json({ error: 'failed to compute stats' });
   }
+});
+
+router.get('/errors', requireAdmin, (req, res) => {
+  res.json({ errors: getRecentErrors() });
 });
 
 module.exports = router;

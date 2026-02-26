@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  background: #f4f6fa;
+  color: #222;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 32px 40px 40px 40px;
+}
+
+h1, h2, h3 {
+  color: #2a3b5d;
+  font-weight: 600;
+}
+
+button, input[type="submit"] {
+  background: #2a7be4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover, input[type="submit"]:hover {
+  background: #195bb5;
+}
+
+input, select {
+  border: 1px solid #cfd8dc;
+  border-radius: 5px;
+  padding: 9px 12px;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border 0.2s;
+}
+input:focus, select:focus {
+  border: 1.5px solid #2a7be4;
+}
+
+form {
+  margin-bottom: 24px;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+pre {
+  background: #f4f6fa;
+  border-radius: 6px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+.error {
+  color: #b71c1c;
+  background: #f8d7da;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 12px 0;
+  font-size: 1rem;
+}
+
+.success {
+  color: #256029;
+  background: #d4edda;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 12px 0;
+  font-size: 1rem;
+}
