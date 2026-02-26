@@ -1,0 +1,26 @@
+{
+  "name": "security-scanner-backend",
+  "version": "1.0.0",
+  "description": "AI-powered security scanning backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "db:push": "npx prisma db push",
+    "db:generate": "npx prisma generate"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "date-fns": "^4.1.0",
+    "express": "^4.21.2",
+    "jsdom": "^25.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "openai": "^4.77.0",
+    "prisma": "^5.22.0"
+  }
+}

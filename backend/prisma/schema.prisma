@@ -16,14 +16,16 @@ model User {
   planType      PlanType @default(FREE) @map("plan_type")
   role          Role     @default(USER)
 
-  // relation to usage events
   usageEvents   UsageEvent[]
+  scans         Scan[]
+  scanHistories ScanHistory[]
 }
 
 enum Role {
   USER
   ADMIN
 }
+
 model UsageEvent {
   id          Int       @id @default(autoincrement())
   user        User      @relation(fields: [userId], references: [id])
@@ -51,6 +53,8 @@ model ScanHistory {
   id          Int      @id @default(autoincrement())
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
+  scan        Scan?    @relation(fields: [scanId], references: [id])
+  scanId      Int?
   url         String
   score       Int
   riskLevel   String
