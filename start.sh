@@ -1,5 +1,4 @@
 #!/bin/bash
-cd backend && node server.js &
-BACKEND_PID=$!
+cd /home/runner/workspace/backend && node server.js &
 sleep 2
-cd frontend && npm run dev
+cd /home/runner/workspace/frontend && npm run dev
