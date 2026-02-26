@@ -1,12 +1,24 @@
-const { Anthropic } = require('@anthropic/sdk');
 const { securityAuditPrompt } = require('./securityPrompt');
 const { logEvent } = require('../usage/log');
 const { chunkText } = require('./utils');
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL = process.env.CLAUDE_MODEL || 'claude-2.1';
+let client = null;
+
+function getClient() {
+  if (!client) {
+    const { Anthropic } = require('@anthropic-ai/sdk');
+    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || 'not-set' });
+  }
+  return client;
+}
+
+const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514';
 
 async function analyzeWithClaude(data, userId) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY is not configured');
+  }
+
   const chunks = chunkText(data);
   let aggregateResults = [];
   let totalTokens = 0;
@@ -14,13 +26,13 @@ async function analyzeWithClaude(data, userId) {
   for (const piece of chunks) {
     const prompt = securityAuditPrompt.replace('${input}', piece);
     try {
-      const res = await client.responses.create({
+      const res = await getClient().messages.create({
         model: MODEL,
-        input: prompt,
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }],
       });
-      // Claude wraps output in "output_text" field
-      const message = res.output_text;
-      const tokens = res?.usage?.total_tokens || 0;
+      const message = res.content[0]?.text || '';
+      const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
       totalTokens += tokens;
 
       let parsed;

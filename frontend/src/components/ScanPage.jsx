@@ -8,11 +8,14 @@ export default function ScanPage({ user }) {
   const [error, setError] = useState();
   const [result, setResult] = useState(null);
   const [polling, setPolling] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function startScan(e) {
     e.preventDefault();
     setError(null);
     setResult(null);
+    setScan(null);
+    setLoading(true);
     try {
       const res = await fetch('/scan', {
         method: 'POST',
@@ -25,9 +28,15 @@ export default function ScanPage({ user }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'scan failed');
       setScan(data.scan);
-      setPolling(true);
+      if (data.scan.status === 'completed' || data.scan.status === 'failed') {
+        setResult(data.scan);
+        setLoading(false);
+      } else {
+        setPolling(true);
+      }
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
   }
 
@@ -39,40 +48,42 @@ export default function ScanPage({ user }) {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         const data = await res.json();
-        if (data.scan && data.scan.status === 'completed') {
+        if (data.scan && (data.scan.status === 'completed' || data.scan.status === 'failed')) {
           setResult(data.scan);
           setPolling(false);
-          clearInterval(interval);
-        } else if (data.scan && data.scan.status === 'failed') {
-          setResult(data.scan);
-          setPolling(false);
+          setLoading(false);
           clearInterval(interval);
         }
-      } catch (e) {
-        // ignore polling errors
-      }
+      } catch (e) {}
     }, 2000);
     return () => clearInterval(interval);
   }, [scan, polling]);
 
   return (
-    <div>
-      <h2>New Scan</h2>
+    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+      <h2>Security Scan</h2>
       <UsageMeter />
-      <form onSubmit={startScan}>
+      <form onSubmit={startScan} style={{ marginTop: '16px' }}>
         <input
           type="url"
           placeholder="https://example.com"
           value={url}
           onChange={e => setUrl(e.target.value)}
           required
+          style={{ padding: '8px', width: '400px', marginRight: '8px' }}
         />
-        <button type="submit">Start Scan</button>
+        <button type="submit" disabled={loading} style={{ padding: '8px 16px' }}>
+          {loading ? 'Scanning...' : 'Start Scan'}
+        </button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      {scan && !result && <p>Scan queued with ID {scan.id}. Processing...</p>}
+      {loading && <p>Analyzing {url}... This may take a moment.</p>}
       {result && result.status === 'completed' && <ResultsPage scanId={result.id} />}
-      {result && result.status === 'failed' && <p style={{ color: 'red' }}>Scan failed: {result.report && result.report.error}</p>}
+      {result && result.status === 'failed' && (
+        <div style={{ marginTop: '16px', padding: '12px', background: '#fff0f0', border: '1px solid #fcc', borderRadius: '4px' }}>
+          <strong>Scan failed:</strong> {result.report && result.report.error}
+        </div>
+      )}
     </div>
   );
 }

@@ -33,7 +33,7 @@ function extractApiEndpointsFromJs(jsText) {
     }
   }
   // look for strings that look like /api/ or https?://.../api
-  const apiRegex = /(https?:\\/\\/[\w\.-]+(?:\\/[^'"\s]+)?|\/[\w\/\-]+)\b/api\b[\w\/\-]*/g;
+  const apiRegex = /(https?:\/\/[\w.-]+(?:\/[^'"\s]+)?|\/[\w/\-]+\/api[\w/\-]*)/g;
   while ((m = apiRegex.exec(jsText))) {
     endpoints.add(m[1]);
   }

@@ -1,12 +1,24 @@
-const OpenAI = require('openai');
 const { securityAuditPrompt } = require('./securityPrompt');
 const { logEvent } = require('../usage/log');
 const { chunkText } = require('./utils');
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let client = null;
+
+function getClient() {
+  if (!client) {
+    const OpenAI = require('openai');
+    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || 'not-set' });
+  }
+  return client;
+}
+
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
 async function analyzeWithOpenAI(data, userId) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not configured');
+  }
+
   const chunks = chunkText(data);
   let aggregateResults = [];
   let totalTokens = 0;
@@ -14,7 +26,7 @@ async function analyzeWithOpenAI(data, userId) {
   for (const piece of chunks) {
     const prompt = securityAuditPrompt.replace('${input}', piece);
     try {
-      const res = await client.chat.completions.create({
+      const res = await getClient().chat.completions.create({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
       });
@@ -36,7 +48,6 @@ async function analyzeWithOpenAI(data, userId) {
       }
     } catch (err) {
       console.error('OpenAI API error', err);
-      // continue to next chunk but record failure indicator
       aggregateResults.push({ error: err.message });
     }
   }
