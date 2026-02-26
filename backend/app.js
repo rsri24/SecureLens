@@ -24,6 +24,11 @@ if (require('fs').existsSync(buildDir)) {
     }
     res.sendFile(path.join(buildDir, 'index.html'));
   });
+} else {
+  // if build not available, provide simple message on root so preview isn't blank
+  app.get('/', (req, res) => {
+    res.send('Frontend build not found; run `npm run build` in the frontend folder or start the React dev server');
+  });
 }
 
 // open routes
