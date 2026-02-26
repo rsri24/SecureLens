@@ -14,7 +14,8 @@ app.get('/ping', (req, res) => res.send('pong'));
 
 // serve frontend build if present
 const path = require('path');
-const buildDir = path.join(__dirname, '../frontend/build');
+// vite builds to "dist" by default
+const buildDir = path.join(__dirname, '../frontend/dist');
 if (require('fs').existsSync(buildDir)) {
   app.use(express.static(buildDir));
   // catch-all to send index.html for SPA routes
@@ -27,7 +28,7 @@ if (require('fs').existsSync(buildDir)) {
 } else {
   // if build not available, provide simple message on root so preview isn't blank
   app.get('/', (req, res) => {
-    res.send('Frontend build not found; run `npm run build` in the frontend folder or start the React dev server');
+    res.send('Frontend build not found; run `npm run build` in the frontend folder (Vite outputs to /dist) or start the React dev server');
   });
 }
 
