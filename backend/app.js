@@ -12,6 +12,20 @@ app.use(bodyParser.json());
 // simple health check
 app.get('/ping', (req, res) => res.send('pong'));
 
+// serve frontend build if present
+const path = require('path');
+const buildDir = path.join(__dirname, '../frontend/build');
+if (require('fs').existsSync(buildDir)) {
+  app.use(express.static(buildDir));
+  // catch-all to send index.html for SPA routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/auth') || req.path.startsWith('/scan') || req.path.startsWith('/usage') || req.path.startsWith('/admin') || req.path === '/ping') {
+      return next();
+    }
+    res.sendFile(path.join(buildDir, 'index.html'));
+  });
+}
+
 // open routes
 app.use('/auth', authRoutes);
 
