@@ -9,6 +9,9 @@ const adminRoutes = require('./services/admin/routes');
 const app = express();
 app.use(bodyParser.json());
 
+// simple health check
+app.get('/ping', (req, res) => res.send('pong'));
+
 // open routes
 app.use('/auth', authRoutes);
 
