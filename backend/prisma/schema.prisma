@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  createdAt     DateTime @default(now()) @map("created_at")
+  lastLogin     DateTime? @map("last_login")
+  planType      PlanType @default(FREE) @map("plan_type")
+  role          Role     @default(USER)
+
+  // relation to usage events
+  usageEvents   UsageEvent[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+model UsageEvent {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  eventType   EventType
+  tokensUsed  Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+}
+
+model Scan {
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
+  url           String
+  status        String   @default("queued")
+  report        Json?
+  lastScore     Int?
+  lastRiskLevel String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  history       ScanHistory[]
+}
+
+model ScanHistory {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  url         String
+  score       Int
+  riskLevel   String
+  createdAt   DateTime @default(now())
+}
+
+enum EventType {
+  SCAN
+  OPENAI_CALL
+  CLAUDE_CALL
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}

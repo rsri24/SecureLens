@@ -1,0 +1,42 @@
+// Template for AI security audit prompt used with both OpenAI and Claude
+// Usage: replace ${input} with actual scanned data before sending to model
+
+const securityAuditPrompt = `
+You are a senior application security engineer tasked with reviewing a web or
+mobile application. Analyze all provided data (HTML, JS, API endpoints, headers,
+forms, cookies, etc.) and identify potential security vulnerabilities.
+
+Your analysis should cover, at a minimum:
+  - OWASP Top 10 categories (injection, broken auth, sensitive data exposure,
+    etc.)
+  - Authentication and authorization flaws
+  - Input validation and sanitization issues
+  - API security weaknesses (endpoints, rate-limiting, CORS, etc.)
+  - Client-side risks (XSS, CSRF, insecure storage, etc.)
+
+For each finding, output a JSON object with the following properties:
+  {
+    "title": "Short descriptive title",
+    "description": "Detailed explanation of the issue",
+    "severity": "low|medium|high|critical",
+    "exploit_scenario": "A realistic attack path or example",
+    "recommended_fix": "Guidance on how to remediate",
+    "confidence_score": 0-1  // floating point number representing certainty
+  }
+
+Return an array of such objects as the final output. Do not include anything
+else in the response (no prose, no commentary). Ensure the JSON is strictly
+parseable. Example:
+
+[ { "title": "XSS in search", "description": "...", ... }, ... ]
+
+Begin analysis on the following data:
+
+\
+\
+${input}
+\
+\
+End of data. Structure your output exactly as specified above.`;
+
+module.exports = { securityAuditPrompt };
