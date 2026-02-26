@@ -57,22 +57,36 @@ export default function ScanPage({ user }) {
 
   return (
     <div>
-      <h2>New Scan</h2>
-      <UsageMeter />
-      <form onSubmit={startScan}>
+      <h2 style={{ marginBottom: 24 }}>New Scan</h2>
+      <div style={{ marginBottom: 24 }}>
+        <UsageMeter />
+      </div>
+      <form onSubmit={startScan} style={{
+        background: '#f4f6fa',
+        borderRadius: 10,
+        boxShadow: '0 2px 8px #e3e8f0',
+        padding: 24,
+        marginBottom: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        maxWidth: 480
+      }}>
+        <label htmlFor="scan-url" style={{ fontWeight: 500, marginBottom: 4 }}>Website URL</label>
         <input
+          id="scan-url"
           type="url"
           placeholder="https://example.com"
           value={url}
           onChange={e => setUrl(e.target.value)}
           required
         />
-        <button type="submit">Start Scan</button>
+        <button type="submit" style={{ alignSelf: 'flex-start', marginTop: 8 }}>Start Scan</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {scan && !result && <p>Scan queued with ID {scan.id}. Processing...</p>}
+      {error && <div className="error">{error}</div>}
+      {scan && !result && <div style={{ color: '#2a7be4', fontWeight: 500, marginBottom: 12 }}>Scan queued with ID {scan.id}. Processing...</div>}
       {result && result.status === 'completed' && <ResultsPage scanId={result.id} />}
-      {result && result.status === 'failed' && <p style={{ color: 'red' }}>Scan failed: {result.report && result.report.error}</p>}
+      {result && result.status === 'failed' && <div className="error">Scan failed: {result.report && result.report.error}</div>}
     </div>
   );
 }

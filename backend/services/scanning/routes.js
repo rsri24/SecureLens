@@ -7,6 +7,13 @@ const { crawl } = require('../crawler/crawler.service');
 const { analyzeWithOpenAI } = require('../ai/openai.service');
 const { analyzeWithClaude } = require('../ai/claude.service');
 const { computeScore } = require('../ai/scoring.service');
+const { logError } = require('../log/errorLogger');
+const withTimeout = (promise, ms, errorMsg) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), ms)),
+  ]);
+};
 
 const router = express.Router();
 
@@ -22,16 +29,16 @@ router.post('/', requireAuth, requireScanPermission, trackScan, async (req, res)
       data: { userId: req.user.id, url, status: 'queued' },
     });
 
-    // Immediately process scan
+    // Immediately process scan with timeouts and error logging
     let status = 'processing';
     let report = null;
     try {
-      // Crawl the URL
-      const crawlData = await crawl(url);
+      // Crawl the URL (timeout 15s)
+      const crawlData = await withTimeout(crawl(url), 15000, 'Crawling timed out');
       const inputData = JSON.stringify(crawlData);
-      // Run AI analysis
-      const openaiResults = await analyzeWithOpenAI(inputData, req.user.id);
-      const claudeResults = await analyzeWithClaude(inputData, req.user.id);
+      // Run AI analysis (timeout 30s each)
+      const openaiResults = await withTimeout(analyzeWithOpenAI(inputData, req.user.id), 30000, 'OpenAI analysis timed out');
+      const claudeResults = await withTimeout(analyzeWithClaude(inputData, req.user.id), 30000, 'Claude analysis timed out');
       // Compute score
       const scoreObj = computeScore(openaiResults, claudeResults);
       // Build report
@@ -45,7 +52,9 @@ router.post('/', requireAuth, requireScanPermission, trackScan, async (req, res)
       status = 'completed';
     } catch (err) {
       status = 'failed';
-      report = { error: err.message };
+      report = { error: err.message, stack: err.stack };
+      logError(err, { url, scanId: scan.id, userId: req.user.id });
+      console.error('Scan processing error:', err);
     }
 
     // Update scan record
@@ -54,10 +63,11 @@ router.post('/', requireAuth, requireScanPermission, trackScan, async (req, res)
       data: { status, report },
     });
 
-    res.json({ message: 'scan completed', scan });
+    res.json({ message: status === 'completed' ? 'scan completed' : 'scan failed', scan });
   } catch (err) {
+    logError(err, { url, userId: req.user && req.user.id });
     console.error('scan create error', err);
-    res.status(500).json({ error: 'failed to create scan' });
+    res.status(500).json({ error: 'failed to create scan', detail: err.message });
   }
 });
 

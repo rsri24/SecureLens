@@ -30,15 +30,33 @@ export default function ResultsPage({ scanId }) {
     load();
   }, [scanId]);
 
-  if (error) return <p>Error: {error}</p>;
+  if (error) return <div className="error">Error: {error}</div>;
   if (!scan) return <p>Loading...</p>;
 
   return (
     <div>
-      <h2>Scan Results for {scan.url}</h2>
-      <p>Status: {scan.status}</p>
-      {score != null && <ScoreViz score={score} />}
-      <ComparisonTable openai={openai} claude={claude} />
+      <h2 style={{ marginBottom: 18 }}>Scan Results for {scan.url}</h2>
+      <div style={{
+        background: '#f4f6fa',
+        borderRadius: 10,
+        boxShadow: '0 2px 8px #e3e8f0',
+        padding: 24,
+        marginBottom: 24,
+        maxWidth: 600
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 500, fontSize: 17 }}>Status:</span>
+          <span style={{
+            color: scan.status === 'completed' ? '#256029' : scan.status === 'failed' ? '#b71c1c' : '#2a7be4',
+            fontWeight: 600,
+            fontSize: 17
+          }}>{scan.status}</span>
+        </div>
+        {score != null && <div style={{ marginTop: 18 }}><ScoreViz score={score} /></div>}
+      </div>
+      <div style={{ marginBottom: 24 }}>
+        <ComparisonTable openai={openai} claude={claude} />
+      </div>
     </div>
   );
 }
